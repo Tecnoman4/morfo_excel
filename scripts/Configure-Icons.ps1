@@ -107,7 +107,7 @@ while ($true) {
 
     Write-Host ''
     Write-Host '--------------------------------------------------------------' -ForegroundColor DarkGray
-    Write-Host ' [1-9] Seleccionar función para cambiar o asignar su logo' -ForegroundColor White
+    Write-Host " [1-$($keys.Count)] Seleccionar función para cambiar o asignar su logo" -ForegroundColor White
     Write-Host ' [G]   Guardar y Recompilar/Instalar en Excel ahora mismo' -ForegroundColor Cyan
     Write-Host ' [R]   Restaurar todas las funciones a iconos nativos de Office' -ForegroundColor DarkYellow
     Write-Host ' [0]   Salir' -ForegroundColor White

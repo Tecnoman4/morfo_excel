@@ -52,7 +52,7 @@
                   supertip="Reemplaza vocales con tildes (á, é, í, ó, ú, ü) por sus equivalentes sin acento." 
                   onAction="CallbackQuitarAcentos" />
           <button id="btnRare" 
-                  label="Quitar Raros" 
+                  label="Quitar todos" 
                   size="large" 
                   imageMso="StyleDelete" 
                   screentip="Eliminar Caracteres Raros de BD" 
@@ -69,6 +69,13 @@
 
         <!-- Grupo de Opciones Avanzadas -->
         <group id="grpAdvanced" label="Personalización">
+          <button id="btnTextEditor" 
+                  label="Editor de Selección" 
+                  size="large" 
+                  imageMso="TextBoxInsert" 
+                  screentip="Editar y Transformar Texto Seleccionado" 
+                  supertip="Permite seleccionar palabras, frases o párrafos dentro de una celda y transformarlos a mayúsculas, minúsculas, etc." 
+                  onAction="CallbackEditorTexto" />
           <button id="btnAdvanced" 
                   label="Opciones Avanzadas" 
                   size="large" 
@@ -96,6 +103,7 @@
         <button id="ctxRare" label="🛡️ Quitar Caracteres Raros" imageMso="StyleDelete" onAction="CallbackQuitarRaros" />
         <menuSeparator id="ctxSep2" />
         <button id="ctxCleanAll" label="⚡ Limpieza Total 1-Clic" imageMso="AutoFormat" onAction="CallbackLimpiezaTotal" />
+        <button id="ctxTextEditor" label="📝 Editar / Transformar Selección..." imageMso="TextBoxInsert" onAction="CallbackEditorTexto" />
         <button id="ctxAdv" label="⚙️ Opciones Avanzadas..." imageMso="CustomActionsGallery" onAction="CallbackFormularioAvanzado" />
       </menu>
     </contextMenu>

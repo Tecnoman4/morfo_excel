@@ -100,5 +100,17 @@
       "avanzadas",
       "advanced"
     ]
+  },
+  "btnTextEditor": {
+    "label": "Editor de Selección",
+    "ctxId": "ctxTextEditor",
+    "image": "",
+    "defaultImageMso": "TextBoxInsert",
+    "aliases": [
+      "editor",
+      "texto",
+      "parrafo",
+      "seleccion"
+    ]
   }
 }

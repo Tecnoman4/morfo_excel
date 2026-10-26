@@ -38,6 +38,7 @@ Private optCaseSentence As Object
 
 Private btnApply As Object
 Private btnClose As Object
+Private btnOpenEditor As Object
 
 Private isInitializing As Boolean
 
@@ -255,6 +256,15 @@ Private Sub UserForm_Initialize()
     End With
     
     ' --- Botones de Acción ---
+    Set btnOpenEditor = Me.Controls.Add("Forms.CommandButton.1", "btnOpenEditor", True)
+    With btnOpenEditor
+        .Caption = "📝 Editor de Párrafo..."
+        .Left = 12
+        .Top = 310
+        .Width = 168
+        .Height = 32
+    End With
+    
     Set btnApply = Me.Controls.Add("Forms.CommandButton.1", "btnApply", True)
     With btnApply
         .Caption = "Aplicar a Selección / Filas"
@@ -394,6 +404,11 @@ End Sub
 
 Private Sub optCaseSentence_Click()
     UpdatePreview
+End Sub
+
+Private Sub btnOpenEditor_Click()
+    Unload Me
+    modUserFormLauncher.AbrirEditorTexto
 End Sub
 
 Private Sub btnClose_Click()

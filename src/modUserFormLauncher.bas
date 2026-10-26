@@ -15,3 +15,13 @@ Public Sub AbrirFormularioAvanzado()
         frmAdvancedClean.Show vbModal
     End If
 End Sub
+
+Public Sub AbrirEditorTexto()
+    On Error Resume Next
+    If TypeName(Selection) <> "Range" Then
+        MsgBox "Por favor, seleccione una celda primero.", vbExclamation, "Morfo"
+        Exit Sub
+    End If
+    
+    frmTextEditor.Show vbModal
+End Sub

@@ -113,6 +113,14 @@ Public Sub AgregarMenuContextual()
                 .OnAction = "AbrirFormularioAvanzado"
                 .FaceId = 548
             End With
+            
+            ' Opción Editor de Selección de Texto
+            Set btn = menuPopup.Controls.Add(Type:=msoControlButton)
+            With btn
+                .Caption = "📝 Editar / Transformar Selección..."
+                .OnAction = "AbrirEditorTexto"
+                .FaceId = 485
+            End With
         End If
     Next cb
     On Error GoTo 0

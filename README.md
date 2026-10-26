@@ -49,11 +49,16 @@ El complemento se integra en dos lugares clave de la interfaz de Excel:
    - Al hacer clic derecho sobre cualquier celda, fila o rango, aparece el submenú:
      `🧹 Morfo: Limpieza y Texto` con acceso instantáneo a todas las opciones.
 
-3. **Ventana Flotante Interactiva (Opciones Avanzadas con Vista Previa)**:
+3. **Editor de Selección y Párrafos (Transformar fragmentos específicos)**:
+   - Permite seleccionar con el ratón **cualquier palabra, frase o fragmento** dentro de un párrafo largo y transformarlo a MAYÚSCULAS, minúsculas, Nombre Propio, sin acentos, etc., sin alterar el resto de la celda.
+   - Soporta el atajo **Shift + F3** dentro del editor para alternar mayúsculas y minúsculas (igual que en Microsoft Word).
+   - Accesible desde el botón **Editor de Selección** en la cinta, desde el menú de clic derecho (`📝 Editar / Transformar Selección...`), o desde la ventana de Opciones Avanzadas.
+
+4. **Ventana Flotante Interactiva (Opciones Avanzadas con Vista Previa)**:
    - Muestra el contenido de la celda activa y una **vista previa en tiempo real** del resultado antes de aplicar los cambios.
    - Permite activar o desactivar cada regla de limpieza de forma individual mediante casillas de verificación.
 
-4. **Fórmulas Personalizadas (UDF)**:
+5. **Fórmulas Personalizadas (UDF)**:
    También puedes usar las funciones directamente en fórmulas de Excel:
    - `=UDF_MAYUSCULAS(A2)`
    - `=UDF_MINUSCULAS(A2)`

@@ -78,3 +78,11 @@ Public Sub CallbackFormularioAvanzado(control As IRibbonControl)
 ErrHandler:
     MsgBox "No se pudo abrir el formulario avanzado: " & Err.Description, vbExclamation, "Morfo"
 End Sub
+
+Public Sub CallbackEditorTexto(control As IRibbonControl)
+    On Error GoTo ErrHandler
+    modUserFormLauncher.AbrirEditorTexto
+    Exit Sub
+ErrHandler:
+    MsgBox "No se pudo abrir el editor de texto: " & Err.Description, vbExclamation, "Morfo"
+End Sub
