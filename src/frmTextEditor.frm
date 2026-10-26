@@ -21,20 +21,20 @@ Option Explicit
 ' ===============================================================================
 
 Private lblHeader As Object
-Private txtContent As Object
+Private WithEvents txtContent As MSForms.TextBox
 Private lblSelectionInfo As Object
 
-Private grpActions As Object
-Private btnUpper As Object
-Private btnLower As Object
-Private btnProper As Object
-Private btnSentence As Object
-Private btnAccents As Object
-Private btnSpaces As Object
+Private lblActionHeader As Object
+Private WithEvents btnUpper As MSForms.CommandButton
+Private WithEvents btnLower As MSForms.CommandButton
+Private WithEvents btnProper As MSForms.CommandButton
+Private WithEvents btnSentence As MSForms.CommandButton
+Private WithEvents btnAccents As MSForms.CommandButton
+Private WithEvents btnSpaces As MSForms.CommandButton
 
 Private lblShortcutTip As Object
-Private btnApply As Object
-Private btnCancel As Object
+Private WithEvents btnApply As MSForms.CommandButton
+Private WithEvents btnCancel As MSForms.CommandButton
 
 Private targetCell As Range
 Private lastCycleState As Integer ' 0 = none, 1 = upper, 2 = lower, 3 = proper
@@ -48,6 +48,7 @@ Private Sub UserForm_Initialize()
     Me.Height = 440
     savedSelStart = 0
     savedSelLength = 0
+    lastCycleState = 0
     
     If TypeName(Selection) = "Range" Then
         Set targetCell = ActiveCell
@@ -75,11 +76,11 @@ Private Sub UserForm_Initialize()
         .Left = 14
         .Top = 32
         .Width = 495
-        .Height = 210
+        .Height = 205
         .MultiLine = True
         .ScrollBars = 2 ' fmScrollBarsVertical
         .EnterKeyBehavior = True
-        .HideSelection = False ' Mantiene visible la selección aunque otro control tenga foco
+        .HideSelection = False ' Mantiene visible el resaltado azul aunque otro control tenga foco
         .Font.Name = "Segoe UI"
         .Font.Size = 10
         .BackColor = RGB(255, 255, 255)
@@ -98,41 +99,42 @@ Private Sub UserForm_Initialize()
     Set lblSelectionInfo = Me.Controls.Add("Forms.Label.1", "lblSelectionInfo", True)
     With lblSelectionInfo
         .Left = 14
-        .Top = 247
+        .Top = 243
         .Width = 495
-        .Height = 14
+        .Height = 16
         .ForeColor = RGB(100, 100, 100)
         .Caption = "Total: " & Len(txtContent.Text) & " caracteres | Ningún texto seleccionado (se transformará todo si pulsas un botón)"
     End With
     
-    ' 4. Marco visual para acciones
-    Set grpActions = Me.Controls.Add("Forms.Frame.1", "grpActions", True)
-    With grpActions
-        .Caption = " Transformar Selección de Texto "
+    ' 4. Barra de Acciones de Transformación (Sin marco opaco para máxima visibilidad)
+    Set lblActionHeader = Me.Controls.Add("Forms.Label.1", "lblActionHeader", True)
+    With lblActionHeader
+        .Caption = "Transformar el texto seleccionado:"
         .Left = 14
-        .Top = 266
+        .Top = 265
         .Width = 495
-        .Height = 65
+        .Height = 15
+        .Font.Bold = True
+        .ForeColor = RGB(40, 40, 40)
     End With
     
-    ' Botones agregados a Me.Controls para que sus eventos Click funcionen de forma nativa
     Set btnUpper = Me.Controls.Add("Forms.CommandButton.1", "btnUpper", True)
     With btnUpper
         .Caption = "MAYÚSCULAS"
-        .Left = 24
-        .Top = 286
-        .Width = 84
+        .Left = 14
+        .Top = 284
+        .Width = 90
         .Height = 32
         .Font.Bold = True
-        .TakeFocusOnClick = False ' No deselecciona el texto del TextBox al hacer clic
+        .TakeFocusOnClick = False
     End With
     
     Set btnLower = Me.Controls.Add("Forms.CommandButton.1", "btnLower", True)
     With btnLower
         .Caption = "minúsculas"
-        .Left = 112
-        .Top = 286
-        .Width = 74
+        .Left = 108
+        .Top = 284
+        .Width = 76
         .Height = 32
         .TakeFocusOnClick = False
     End With
@@ -140,9 +142,9 @@ Private Sub UserForm_Initialize()
     Set btnProper = Me.Controls.Add("Forms.CommandButton.1", "btnProper", True)
     With btnProper
         .Caption = "Nombre Propio"
-        .Left = 190
-        .Top = 286
-        .Width = 92
+        .Left = 188
+        .Top = 284
+        .Width = 94
         .Height = 32
         .TakeFocusOnClick = False
     End With
@@ -151,8 +153,8 @@ Private Sub UserForm_Initialize()
     With btnSentence
         .Caption = "Tipo Oración"
         .Left = 286
-        .Top = 286
-        .Width = 80
+        .Top = 284
+        .Width = 82
         .Height = 32
         .TakeFocusOnClick = False
     End With
@@ -160,9 +162,9 @@ Private Sub UserForm_Initialize()
     Set btnAccents = Me.Controls.Add("Forms.CommandButton.1", "btnAccents", True)
     With btnAccents
         .Caption = "Quitar Acentos"
-        .Left = 370
-        .Top = 286
-        .Width = 86
+        .Left = 372
+        .Top = 284
+        .Width = 88
         .Height = 32
         .TakeFocusOnClick = False
     End With
@@ -170,9 +172,9 @@ Private Sub UserForm_Initialize()
     Set btnSpaces = Me.Controls.Add("Forms.CommandButton.1", "btnSpaces", True)
     With btnSpaces
         .Caption = "Espacios"
-        .Left = 460
-        .Top = 286
-        .Width = 44
+        .Left = 464
+        .Top = 284
+        .Width = 55
         .Height = 32
         .TakeFocusOnClick = False
     End With
@@ -181,31 +183,33 @@ Private Sub UserForm_Initialize()
     Set lblShortcutTip = Me.Controls.Add("Forms.Label.1", "lblShortcutTip", True)
     With lblShortcutTip
         .Left = 14
-        .Top = 340
+        .Top = 328
         .Width = 495
         .Height = 15
         .ForeColor = RGB(90, 110, 130)
-        .Caption = "Atajos: Puedes presionar Shift + F3 dentro del texto para alternar mayúsculas/minúsculas."
+        .Caption = "Tip: Puedes presionar Shift + F3 en el texto para alternar mayúsculas y minúsculas."
     End With
     
     ' 6. Botones de Aplicar y Cancelar
     Set btnApply = Me.Controls.Add("Forms.CommandButton.1", "btnApply", True)
     With btnApply
         .Caption = "Guardar en Celda"
-        .Left = 245
-        .Top = 362
-        .Width = 160
+        .Left = 250
+        .Top = 352
+        .Width = 155
         .Height = 34
         .Font.Bold = True
+        .Default = True
     End With
     
     Set btnCancel = Me.Controls.Add("Forms.CommandButton.1", "btnCancel", True)
     With btnCancel
         .Caption = "Cancelar"
         .Left = 414
-        .Top = 362
+        .Top = 352
         .Width = 95
         .Height = 34
+        .Cancel = True
     End With
 End Sub
 
@@ -274,7 +278,7 @@ Private Sub txtContent_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shi
     ' Esc: Cancelar
     If KeyCode = 27 Then ' 27 = vbKeyEscape
         KeyCode = 0
-        Unload Me
+        btnCancel_Click
         Exit Sub
     End If
 End Sub
