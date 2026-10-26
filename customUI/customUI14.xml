@@ -1,7 +1,7 @@
 <customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui">
   <ribbon>
     <tabs>
-      <tab id="tabMorfo" label="Morfo" insertAfterMso="TabHome">
+      <tab id="tabMorfo" label="Morfo">
         
         <!-- Grupo de Transformación de Mayúsculas / Minúsculas -->
         <group id="grpCase" label="Formato de Mayúsculas y Minúsculas">
@@ -15,7 +15,7 @@
           <button id="btnLower" 
                   label="minúsculas" 
                   size="large" 
-                  imageMso="FontProperties" 
+                  image="minus" 
                   screentip="Convertir a minúsculas" 
                   supertip="Convierte todo el texto del rango o fila seleccionada a minúsculas." 
                   onAction="CallbackMinusculas" />
@@ -87,7 +87,7 @@
     <contextMenu idMso="ContextMenuCell">
       <menu id="ctxMenuMorfo" label="Morfo: Limpieza y Texto" imageMso="AutoFormat" insertBeforeMso="Cut">
         <button id="ctxUpper" label="🔤 MAYÚSCULAS" imageMso="CharacterBorder" onAction="CallbackMayusculas" />
-        <button id="ctxLower" label="🔡 minúsculas" imageMso="FontProperties" onAction="CallbackMinusculas" />
+        <button id="ctxLower" label="🔡 minúsculas" image="minus" onAction="CallbackMinusculas" />
         <button id="ctxProper" label="🔠 Nombre Propio" imageMso="FontCaseCapitalizeEachWord" onAction="CallbackNombrePropio" />
         <button id="ctxSentence" label="📝 Tipo Oración" imageMso="WordArtFormatDialog" onAction="CallbackTipoOracion" />
         <menuSeparator id="ctxSep1" />

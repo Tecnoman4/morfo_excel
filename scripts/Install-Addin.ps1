@@ -6,7 +6,8 @@
 
 [CmdletBinding()]
 param(
-    [string]$AddinName = "Morfo.xlam"
+    [string]$AddinName = "Morfo.xlam",
+    [string]$TabPosition = "Final"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,11 +19,9 @@ Write-Host '==========================================================' -Foregro
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $sourceAddin = Join-Path $projectRoot ('dist\' + $AddinName)
 
-# 1. Verificar existencia del archivo compilado
-if (-not (Test-Path $sourceAddin)) {
-    Write-Host 'Compilando complemento primero...' -ForegroundColor Yellow
-    & "$PSScriptRoot\Build-Addin.ps1"
-}
+# 1. Compilar complemento con la posición de pestaña deseada
+Write-Host "Compilando complemento con posición de pestaña: $TabPosition..." -ForegroundColor Yellow
+& "$PSScriptRoot\Build-Addin.ps1" -OutputFileName $AddinName -TabPosition $TabPosition
 
 # 2. Cerrar Excel si está abierto para evitar bloqueos de archivos en uso
 $excelProc = Get-Process excel -ErrorAction SilentlyContinue
@@ -38,10 +37,15 @@ $addInsDir = Join-Path $appData 'Microsoft\AddIns'
 $xlStartDir = Join-Path $appData 'Microsoft\Excel\XLSTART'
 
 if (-not (Test-Path $addInsDir)) { New-Item -ItemType Directory -Path $addInsDir -Force | Out-Null }
-if (-not (Test-Path $xlStartDir)) { New-Item -ItemType Directory -Path $xlStartDir -Force | Out-Null }
 
 $destAddIn = Join-Path $addInsDir $AddinName
 $destXLStart = Join-Path $xlStartDir $AddinName
+
+# Limpiar cualquier copia en XLSTART para EVITAR el error "Excel no puede abrir dos libros con el mismo nombre"
+if (Test-Path $destXLStart) {
+    Remove-Item $destXLStart -Force -ErrorAction SilentlyContinue
+    Write-Host '   -> Eliminada copia redundante en XLSTART para evitar conflicto de nombres.' -ForegroundColor Green
+}
 
 # Limpiar versión anterior si existía
 $oldAddIn = Join-Path $addInsDir "HerramientasDeTexto.xlam"
@@ -49,14 +53,12 @@ $oldXLStart = Join-Path $xlStartDir "HerramientasDeTexto.xlam"
 if (Test-Path $oldAddIn) { Remove-Item $oldAddIn -Force -ErrorAction SilentlyContinue }
 if (Test-Path $oldXLStart) { Remove-Item $oldXLStart -Force -ErrorAction SilentlyContinue }
 
-Write-Host '1. Copiando complemento Morfo a rutas oficiales de Excel...' -ForegroundColor Yellow
+Write-Host '1. Copiando complemento Morfo a la carpeta oficial de AddIns...' -ForegroundColor Yellow
 Copy-Item -Path $sourceAddin -Destination $destAddIn -Force
-Copy-Item -Path $sourceAddin -Destination $destXLStart -Force
 
 # Desbloquear archivos descargados o generados (eliminar marca Zone.Identifier de Windows)
 Unblock-File -Path $destAddIn -ErrorAction SilentlyContinue
-Unblock-File -Path $destXLStart -ErrorAction SilentlyContinue
-Write-Host '   -> Archivos copiados y desbloqueados correctamente.' -ForegroundColor Green
+Write-Host '   -> Archivo copiado y desbloqueado correctamente en Microsoft\AddIns.' -ForegroundColor Green
 
 # 4. Configurar Ubicaciones de Confianza (Trusted Locations) en el Registro
 Write-Host '2. Configurando Ubicaciones de Confianza (Trusted Locations)...' -ForegroundColor Yellow

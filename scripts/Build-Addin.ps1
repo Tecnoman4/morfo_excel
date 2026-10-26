@@ -6,7 +6,8 @@
 
 [CmdletBinding()]
 param(
-    [string]$OutputFileName = "Morfo.xlam"
+    [string]$OutputFileName = "Morfo.xlam",
+    [string]$TabPosition = "Final"
 )
 
 $ErrorActionPreference = "Stop"
@@ -97,7 +98,8 @@ try {
         $formComp.Name = $baseName
         try {
             $formComp.Properties.Item("Caption").Value = $formCaption
-        } catch { }
+        }
+        catch { }
         
         if ($codeOnly.Count -gt 0) {
             $codeBody = $codeOnly -join "`r`n"
@@ -143,12 +145,114 @@ if (-not (Test-Path $customUIXmlPath)) {
 # Abrir el ZIP del archivo .xlam
 $zip = [System.IO.Compression.ZipFile]::Open($outputAddinPath, [System.IO.Compression.ZipArchiveMode]::Update)
 try {
-    # 4.1 Anadir archivo customUI/customUI14.xml
+    # 4.1 Añadir archivo customUI/customUI14.xml con la posición elegida
+    $customXmlRaw = Get-Content -Path $customUIXmlPath -Raw -Encoding UTF8
+    $insertAttr = ""
+    switch ($TabPosition) {
+        "Inicio" { $insertAttr = ' insertAfterMso="TabHome"' }
+        "Home" { $insertAttr = ' insertAfterMso="TabHome"' }
+        "Insertar" { $insertAttr = ' insertAfterMso="TabInsert"' }
+        "Datos" { $insertAttr = ' insertAfterMso="TabData"' }
+        "Data" { $insertAttr = ' insertAfterMso="TabData"' }
+        "Revisar" { $insertAttr = ' insertAfterMso="TabReview"' }
+        "Review" { $insertAttr = ' insertAfterMso="TabReview"' }
+        "Vista" { $insertAttr = ' insertAfterMso="TabView"' }
+        "View" { $insertAttr = ' insertAfterMso="TabView"' }
+        "Programador" { $insertAttr = ' insertAfterMso="TabDeveloper"' }
+        "Developer" { $insertAttr = ' insertAfterMso="TabDeveloper"' }
+        default { $insertAttr = "" } # Final (al final de la cinta)
+    }
+    $tabTagReplacement = "<tab id=`"tabMorfo`" label=`"Morfo`"$insertAttr>"
+    $customXmlProcessed = $customXmlRaw -replace '<tab id="tabMorfo" label="Morfo"[^>]*>', $tabTagReplacement
+
+    # Procesar iconos personalizados y nativos según icon_config.json
+    function Update-XmlButtonIcon {
+        param([string]$xmlText, [string]$buttonId, [string]$imageName, [string]$defaultMso)
+        $pattern = "(?s)<button\b(?=[^>]*?\bid=`"$buttonId`")[^>]*?>"
+        return [regex]::Replace($xmlText, $pattern, {
+            param($m)
+            $tag = $m.Value
+            if ($imageName) {
+                if ($tag -match 'imageMso="[^"]*"') {
+                    return ($tag -replace 'imageMso="[^"]*"', "image=`"$imageName`"")
+                } elseif ($tag -match 'image="[^"]*"') {
+                    return ($tag -replace 'image="[^"]*"', "image=`"$imageName`"")
+                } else {
+                    return ($tag -replace '<button\b', "<button image=`"$imageName`"")
+                }
+            } else {
+                if ($tag -match 'image="[^"]*"') {
+                    return ($tag -replace 'image="[^"]*"', "imageMso=`"$defaultMso`"")
+                } elseif ($tag -match 'imageMso="[^"]*"') {
+                    return ($tag -replace 'imageMso="[^"]*"', "imageMso=`"$defaultMso`"")
+                } else {
+                    return ($tag -replace '<button\b', "<button imageMso=`"$defaultMso`"")
+                }
+            }
+        })
+    }
+
+    $iconConfigPath = Join-Path $customUIDir "icon_config.json"
+    $logosDir = Join-Path $customUIDir "logos"
+
+    if (Test-Path $iconConfigPath) {
+        try {
+            $configJson = Get-Content -Path $iconConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            foreach ($prop in $configJson.PSObject.Properties) {
+                $btnId = $prop.Name
+                $item = $prop.Value
+                $assignedImg = [string]$item.image
+                $ctxId = [string]$item.ctxId
+                $defaultMso = [string]$item.defaultImageMso
+
+                # Si no tiene imagen asignada explícita, buscar automáticamente por alias en customUI/logos
+                if ([string]::IsNullOrWhiteSpace($assignedImg) -and (Test-Path $logosDir)) {
+                    $aliases = @($btnId) + @($item.aliases)
+                    foreach ($alias in $aliases) {
+                        $candidate = Join-Path $logosDir ($alias + ".png")
+                        if (Test-Path $candidate) {
+                            $assignedImg = ($alias + ".png")
+                            break
+                        }
+                    }
+                }
+
+                $imgBaseName = $null
+                if (-not [string]::IsNullOrWhiteSpace($assignedImg)) {
+                    $imgPath = Join-Path $logosDir $assignedImg
+                    if (Test-Path $imgPath) {
+                        $imgBaseName = [System.IO.Path]::GetFileNameWithoutExtension($assignedImg)
+                    } else {
+                        Write-Host "   -> Aviso: Imagen '$assignedImg' para $btnId no existe en customUI\logos, usando icono nativo." -ForegroundColor DarkYellow
+                    }
+                }
+
+                $customXmlProcessed = Update-XmlButtonIcon -xmlText $customXmlProcessed -buttonId $btnId -imageName $imgBaseName -defaultMso $defaultMso
+                if (-not [string]::IsNullOrWhiteSpace($ctxId)) {
+                    $customXmlProcessed = Update-XmlButtonIcon -xmlText $customXmlProcessed -buttonId $ctxId -imageName $imgBaseName -defaultMso $defaultMso
+                }
+
+                if ($imgBaseName) {
+                    Write-Host "   -> Botón '$($item.label)': asignado logo '$assignedImg'" -ForegroundColor Green
+                }
+            }
+        } catch {
+            Write-Host "   -> Aviso leyendo icon_config.json: $($_.Exception.Message)" -ForegroundColor DarkYellow
+        }
+    }
+
     $customEntry = $zip.GetEntry("customUI/customUI14.xml")
     if ($null -ne $customEntry) {
         $customEntry.Delete()
     }
-    [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $customUIXmlPath, "customUI/customUI14.xml") | Out-Null
+    $newXmlEntry = $zip.CreateEntry("customUI/customUI14.xml")
+    $entryStream = $newXmlEntry.Open()
+    $xmlWriter = New-Object System.IO.StreamWriter($entryStream, [System.Text.Encoding]::UTF8)
+    $xmlWriter.Write($customXmlProcessed)
+    $xmlWriter.Flush()
+    $xmlWriter.Close()
+    $entryStream.Close()
+    Write-Host "   -> Pestaña 'Morfo' configurada en posición: $TabPosition" -ForegroundColor Green
 
     # 4.2 Actualizar _rels/.rels para registrar la relacion de CustomUI
     $relsEntry = $zip.GetEntry("_rels/.rels")
@@ -172,7 +276,79 @@ try {
             $writer.Write($updatedRels)
             $writer.Flush()
             $writer.Close()
-            $writeStream.Close()
+        }
+    }
+
+    # 4.3 Inyectar logos e imágenes personalizadas (customUI/images) y sus relaciones
+    $logosDir = Join-Path $customUIDir "logos"
+    if (Test-Path $logosDir) {
+        $imageFiles = Get-ChildItem -Path $logosDir -File
+        if ($imageFiles.Count -gt 0) {
+            Write-Host "Inyectando logos personalizados ($($imageFiles.Count))..." -ForegroundColor Yellow
+            $relItems = @()
+            foreach ($img in $imageFiles) {
+                $baseImgName = [System.IO.Path]::GetFileNameWithoutExtension($img.Name)
+                $targetInZip = "customUI/images/" + $img.Name
+                
+                # Eliminar entrada si ya existía
+                $existingImg = $zip.GetEntry($targetInZip)
+                if ($null -ne $existingImg) { $existingImg.Delete() }
+                
+                [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $img.FullName, $targetInZip) | Out-Null
+                Write-Host "   -> Imagen agregada: $targetInZip (Id: $baseImgName)" -ForegroundColor Green
+                
+                $relItems += '<Relationship Id="' + $baseImgName + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="images/' + $img.Name + '"/>'
+            }
+
+            # Crear customUI/_rels/customUI14.xml.rels
+            $relsXmlContent = "<?xml version=`"1.0`" encoding=`"UTF-8`" standalone=`"yes`"?>`r`n" +
+                              "<Relationships xmlns=`"http://schemas.openxmlformats.org/package/2006/relationships`">`r`n" +
+                              ($relItems -join "`r`n") + "`r`n" +
+                              "</Relationships>"
+
+            $customUIRelsEntry = $zip.GetEntry("customUI/_rels/customUI14.xml.rels")
+            if ($null -ne $customUIRelsEntry) { $customUIRelsEntry.Delete() }
+
+            $newCustomUIRels = $zip.CreateEntry("customUI/_rels/customUI14.xml.rels")
+            $relsStream = $newCustomUIRels.Open()
+            $relsWriter = New-Object System.IO.StreamWriter($relsStream, [System.Text.Encoding]::UTF8)
+            $relsWriter.Write($relsXmlContent)
+            $relsWriter.Flush()
+            $relsWriter.Close()
+            $relsStream.Close()
+            Write-Host "   -> Relaciones customUI14.xml.rels creadas correctamente." -ForegroundColor Green
+
+            # 4.4 Asegurar que [Content_Types].xml incluya los tipos MIME de imágenes (png, etc.)
+            $ctEntry = $zip.GetEntry("[Content_Types].xml")
+            if ($null -ne $ctEntry) {
+                $ctStream = $ctEntry.Open()
+                $ctReader = New-Object System.IO.StreamReader($ctStream)
+                $ctContent = $ctReader.ReadToEnd()
+                $ctReader.Close()
+                $ctStream.Close()
+
+                $typesToAdd = ""
+                if ($ctContent -notmatch 'Extension="png"') {
+                    $typesToAdd += '<Default Extension="png" ContentType="image/png"/>'
+                }
+                if ($ctContent -notmatch 'Extension="jpg"') {
+                    $typesToAdd += '<Default Extension="jpg" ContentType="image/jpeg"/>'
+                }
+
+                if ($typesToAdd -ne "") {
+                    $updatedCt = $ctContent -replace "</Types>", "$typesToAdd</Types>"
+                    $ctEntry.Delete()
+
+                    $newCtEntry = $zip.CreateEntry("[Content_Types].xml")
+                    $writeCtStream = $newCtEntry.Open()
+                    $ctWriter = New-Object System.IO.StreamWriter($writeCtStream, [System.Text.Encoding]::UTF8)
+                    $ctWriter.Write($updatedCt)
+                    $ctWriter.Flush()
+                    $ctWriter.Close()
+                    $writeCtStream.Close()
+                    Write-Host "   -> Tipos MIME de imágenes registrados en [Content_Types].xml" -ForegroundColor Green
+                }
+            }
         }
     }
 }

@@ -1,0 +1,104 @@
+{
+  "btnUpper": {
+    "label": "MAYÚSCULAS",
+    "ctxId": "ctxUpper",
+    "image": "",
+    "defaultImageMso": "CharacterBorder",
+    "aliases": [
+      "mayusculas",
+      "mayus",
+      "upper"
+    ]
+  },
+  "btnLower": {
+    "label": "minúsculas",
+    "ctxId": "ctxLower",
+    "image": "minus.png",
+    "defaultImageMso": "FontProperties",
+    "aliases": [
+      "minusculas",
+      "minus",
+      "lower"
+    ]
+  },
+  "btnProper": {
+    "label": "Nombre Propio",
+    "ctxId": "ctxProper",
+    "image": "proper.png",
+    "defaultImageMso": "FontCaseCapitalizeEachWord",
+    "aliases": [
+      "nombre_propio",
+      "nombrepropio",
+      "proper"
+    ]
+  },
+  "btnSentence": {
+    "label": "Tipo Oración",
+    "ctxId": "ctxSentence",
+    "image": "sentence.png",
+    "defaultImageMso": "WordArtFormatDialog",
+    "aliases": [
+      "tipo_oracion",
+      "tipooracion",
+      "oracion",
+      "sentence"
+    ]
+  },
+  "btnSpaces": {
+    "label": "Quitar Espacios",
+    "ctxId": "ctxSpaces",
+    "image": "erase_space.png",
+    "defaultImageMso": "SpaceAfterParagraph",
+    "aliases": [
+      "quitar_espacios",
+      "espacios",
+      "spaces"
+    ]
+  },
+  "btnAccents": {
+    "label": "Quitar Acentos",
+    "ctxId": "ctxAccents",
+    "image": "acent.png",
+    "defaultImageMso": "ReviewTranslate",
+    "aliases": [
+      "quitar_acentos",
+      "acentos",
+      "tildes",
+      "accents"
+    ]
+  },
+  "btnRare": {
+    "label": "Quitar todos",
+    "ctxId": "ctxRare",
+    "image": "",
+    "defaultImageMso": "StyleDelete",
+    "aliases": [
+      "quitar_raros",
+      "raros",
+      "caracteres_raros",
+      "rare"
+    ]
+  },
+  "btnCleanAll": {
+    "label": "Limpieza Total",
+    "ctxId": "ctxCleanAll",
+    "image": "",
+    "defaultImageMso": "AutoFormat",
+    "aliases": [
+      "limpieza_total",
+      "limpiezatotal",
+      "cleanall"
+    ]
+  },
+  "btnAdvanced": {
+    "label": "Opciones Avanzadas",
+    "ctxId": "ctxAdv",
+    "image": "",
+    "defaultImageMso": "CustomActionsGallery",
+    "aliases": [
+      "opciones_avanzadas",
+      "avanzadas",
+      "advanced"
+    ]
+  }
+}

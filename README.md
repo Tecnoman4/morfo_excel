@@ -38,7 +38,8 @@ Complemento profesional nativo para **Microsoft Excel** diseñado para analistas
 El complemento se integra en dos lugares clave de la interfaz de Excel:
 
 1. **Cinta de Opciones (Ribbon)**:
-   - Se crea una pestaña dedicada llamada **`Morfo`** junto a la pestaña de *Inicio*.
+   - Se crea una pestaña dedicada llamada **`Morfo`** ubicada por defecto **al final** de la cinta de opciones (para no alterar tus pestañas habituales).
+   - Puedes cambiar su ubicación en cualquier momento con el archivo [Configurar_Posicion_Pestana.bat](file:///c:/Users/DELL/Documents/morfo_excel/Configurar_Posicion_Pestana.bat) o arrastrándola desde las opciones de Excel.
    - Botones con iconos intuitivos organizados en:
      - *Formato de Mayúsculas y Minúsculas*
      - *Limpieza de Bases de Datos*
@@ -101,11 +102,24 @@ En la carpeta principal del proyecto encontrarás el instalador automático:
 👉 **`Instalar_Complemento.bat`** (haz doble clic sobre él)
 
 El instalador realiza todo el trabajo por ti de forma 100% automatizada:
-1. Copia el archivo `.xlam` a la carpeta de complementos de Excel (`%APPDATA%\Microsoft\AddIns`).
-2. Lo coloca también en la carpeta de inicio de Excel (`%APPDATA%\Microsoft\Excel\XLSTART`) para que funcione en **cualquier libro sin macros (`.xlsx`)**, archivos `.csv` o libros nuevos sin pedir permisos.
+1. Copia el archivo `.xlam` a la carpeta oficial de complementos de Excel (`%APPDATA%\Microsoft\AddIns`).
+2. Registra y activa el complemento en la lista oficial de Add-ins de Excel para que funcione en **cualquier libro sin macros (`.xlsx`)**, archivos `.csv` o libros nuevos.
 3. Configura las **Ubicaciones de Confianza (Trusted Locations)** en el Registro de Windows de Excel para que las macros nunca se bloqueen.
 4. Desbloquea los archivos en Windows (`Unblock-File`).
-5. Registra el complemento en la lista de Add-ins de Excel.
+
+### Cambiar la posición de la pestaña 'Morfo' en la cinta
+Si deseas cambiar el lugar donde aparece la pestaña:
+👉 **`Configurar_Posicion_Pestana.bat`** (haz doble clic para elegir: Al final, Después de Inicio, Datos, Revisar, etc.)
+
+O también de forma nativa en Excel:
+`Archivo > Opciones > Personalizar cinta de opciones` y mover la pestaña "Morfo" con las flechas Subir / Bajar.
+
+### Personalizar Logos e Iconos de los Botones
+Puedes personalizar el logo de cualquiera de las 9 funciones:
+👉 **`Configurar_Logos.bat`** (haz doble clic para abrir el asistente interactivo)
+- Te permite elegir qué imagen de `customUI\logos` asignar a cada función.
+- Te permite abrir el explorador de Windows para buscar y cargar cualquier archivo `.png` de tu equipo.
+- O simplemente guarda tus imágenes `.png` en `customUI\logos` con nombres como `mayus.png`, `minus.png`, `proper.png`, etc., y se detectarán solas.
 
 ### Desinstalación
 Si alguna vez deseas retirar el complemento, simplemente haz doble clic en:
