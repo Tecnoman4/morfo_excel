@@ -70,7 +70,7 @@
   "btnRare": {
     "label": "Quitar todos",
     "ctxId": "ctxRare",
-    "image": "",
+    "image": "borrar_todo.png",
     "defaultImageMso": "StyleDelete",
     "aliases": [
       "quitar_raros",
