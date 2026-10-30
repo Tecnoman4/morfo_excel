@@ -85,6 +85,16 @@
                   onAction="CallbackFormularioAvanzado" />
         </group>
 
+        <!-- Grupo de Autor / Créditos -->
+        <group id="grpCredits" label="Créditos">
+          <labelControl id="lblAuthorSpacer1" label=" " />
+          <labelControl id="lblAuthor" 
+                        label="Desarrollada por el Ing. Manuel Barahona" 
+                        screentip="Acerca del Desarrollador" 
+                        supertip="Desarrollada por el Ing. Manuel Barahona." />
+          <labelControl id="lblAuthorSpacer2" label=" " />
+        </group>
+
       </tab>
     </tabs>
   </ribbon>
